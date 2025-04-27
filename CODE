@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fact-checking | AI-Powered News Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #6c63ff;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #fff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --footer-bg: #2c3e50;
+            --footer-text: #ecf0f1;
+            --accent-color: #ff6b6b;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #6c63ff;
+            --secondary-color: #4a6bff;
+            --text-color: #f0f0f0;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --header-bg: rgba(30, 30, 30, 0.95);
+            --footer-bg: #1a1a1a;
+            --footer-text: #e0e0e0;
+            --accent-color: #ff6b6b;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--header-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 40px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+            transform: rotate(30deg);
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(74, 107, 255, 0.3);
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 107, 255, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.1) 0%, rgba(108, 99, 255, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: var(--text-color);
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            animation: fadeInUp 1s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .secondary-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            margin-top: 3rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            width: 100%;
+            height: auto;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background-color: var(--bg-color);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--text-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            color: var(--secondary-color);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .feature-card p {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.05) 0%, rgba(108, 99, 255, 0.05) 100%);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        .step:hover {
+            transform: translateX(10px);
+        }
+
+        .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .step:hover .step-number {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .step-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .step-content p {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            z-index: 0;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 5rem 2rem;
+            background-color: var(--bg-color);
+        }
+
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 2rem;
+            padding: 2rem 0;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .testimonial-slider::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .testimonial-slider::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .testimonial-slider::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .testimonial-card {
+            min-width: 300px;
+            max-width: 400px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            scroll-snap-align: start;
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            position: relative;
+        }
+
+        .testimonial-text::before,
+        .testimonial-text::after {
+            content: '"';
+            font-size: 2rem;
+            color: var(--primary-color);
+            opacity: 0.3;
+            position: absolute;
+        }
+
+        .testimonial-text::before {
+            top: -10px;
+            left: -10px;
+        }
+
+        .testimonial-text::after {
+            bottom: -20px;
+            right: -10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .author-info h4 {
+            color: var(--text-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .author-info p {
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Newsletter Section */
+        .newsletter {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter p {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 1rem;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .newsletter-form button {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-form button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo img {
+            height: 40px;
+        }
+
+        .footer-about p {
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-links h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-links h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--footer-text);
+            opacity: 0.8;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+
+        .footer-subscribe h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-subscribe h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .footer-subscribe p {
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .footer-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .footer-form input {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .footer-form button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .footer-form button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Sign In/Up Forms */
+        .auth-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .form-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+            position: relative;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .close-form {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .close-form:hover {
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .form-submit:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .form-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Chatbot Styles */
+        #chatbotIcon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(74, 107, 255, 0.3);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        #chatbotIcon:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        #chatbotIcon i {
+            font-size: 1.5rem;
+        }
+
+        #chatbotWindow {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            transition: var(--transition);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        #chatbotWindow.active {
+            display: flex;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .chatbot-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #closeChatbot {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #closeChatbot:hover {
+            transform: rotate(90deg);
+        }
+
+        #chatbotMessages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .chatbot-input-container {
+            display: flex;
+            padding: 0.8rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg);
+        }
+
+        #chatbotInput {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            outline: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        #sendChatbotMessage {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #sendChatbotMessage:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-form input,
+            .newsletter-form button {
+                width: 100%;
+            }
+
+            #chatbotWindow {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-container {
+                margin: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="#" class="logo">
+            <img src="https://img.icons8.com/color/48/000000/artificial-intelligence.png" alt="fact-checking Logo"> AI FACT DETECTOR
+        </a>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="cta-button" id="signInButton">Sign In</button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>🔍 AI News Fact Checker</h1>
+        <p>fact-checking uses advanced artificial intelligence to analyze news articles and determine their credibility. Get instant verification and protect yourself from misinformation.</p>
+        <div class="hero-buttons">
+            <button class="cta-button" id="tryNowButton">Try Now for Free</button>
+            <button class="secondary-button">Learn More</button>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">✨ Powerful Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Powered Analysis</h3>
+                <p>Our advanced algorithms analyze news content, sources, and patterns to detect misinformation with over 92% accuracy.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Real-Time Verification</h3>
+                <p>Get instant results on any news article or social media post. No more waiting to find out if something is true.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>Source Tracking</h3>
+                <p>See the original source of information and track how it has been modified as it spread across the internet.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Bias Detection</h3>
+                <p>Our system identifies political, financial, and other biases in news reporting to help you understand the full context.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Privacy Focused</h3>
+                <p>We don't store your personal data or browsing history. Your privacy is our top priority.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Multi-Language</h3>
+                <p>Works with news in multiple languages, including English, Spanish, French, German, and more.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">📌 How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Paste the News URL</h3>
+                    <p>Copy and paste the link to any news article or social media post you want to verify.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>AI Analysis</h3>
+                    <p>Our system scans the content, checks sources, and compares with trusted databases.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Get Results</h3>
+                    <p>Receive a detailed report showing credibility score, source reliability, and potential biases.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Stay Informed</h3>
+                    <p>Save reports, set up alerts for trending topics, and share verified information with others.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <h2 class="section-title">💬 What Users Say</h2>
+        <div class="testimonials-container">
+            <div class="testimonial-slider">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        fact-checking has completely changed how I consume news. I no longer share articles before checking them, and it's saved me from embarrassment multiple times.
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J." class="author-avatar">
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Journalist, New York Times</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        As a teacher, I use fact-checking to help my students develop critical thinking skills. The bias detection feature is particularly helpful for media literacy education.
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Michael T." class="author-avatar">
+                        <div class="author-info">
+                            <h4>Michael Thompson</h4>
+                            <p>High School Teacher</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        I run a fact-checking blog and fact-checking has cut my research time in half. The AI catches things I might miss and provides excellent source analysis.
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya K." class="author-avatar">
+                        <div class="author-info">
+                            <h4>Priya Kapoor</h4>
+                            <p>Fact-Checking Blogger</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        My elderly parents were constantly forwarding fake news. Now I send them factchecker reports and they've become much more discerning about what they share.
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="David L." class="author-avatar">
+                        <div class="author-info">
+                            <h4>David Lee</h4>
+                            <p>Concerned Son</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <h2>📰 Stay Updated on Media Literacy</h2>
+        <p>Subscribe to our newsletter for weekly tips on spotting fake news, media literacy resources, and Fact-Checking updates.</p>
+        <form class="newsletter-form">
+            <input type="email" placeholder="Your email address" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-about">
+                <a href="#" class="footer-logo">
+                    <img src="https://img.icons8.com/color/48/000000/artificial-intelligence.png" alt="Fact-Checking Logo"> Fact-Checking
+                </a>
+                <p>Empowering people to navigate the digital information landscape with confidence and critical thinking.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#testimonials">Testimonials</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Media Literacy Guide</a></li>
+                    <li><a href="#">Fact-Checking Tools</a></li>
+                    <li><a href="#">Research Papers</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-subscribe">
+                <h3>Get Started</h3>
+                <p>Ready to take control of your news consumption? Sign up for a free account today.</p>
+                <div class="footer-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="button" id="footerSignUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 factchecker
+            . All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <!-- Sign In Form -->
+    <div class="auth-form" id="signInForm">
+        <div class="form-container">
+            <span class="close-form" id="closeSignIn">&times;</span>
+            <h2>Sign In</h2>
+            <form id="signInFormElement">
+                <div class="form-group">
+                    <label for="signInEmail">Email</label>
+                    <input type="email" id="signInEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signInPassword">Password</label>
+                    <input type="password" id="signInPassword" required>
+                </div>
+                <button type="submit" class="form-submit">Sign In</button>
+            </form>
+            <div class="form-footer">
+                <p>Don't have an account? <a href="#" id="switchToSignUp">Sign Up</a></p>
+                <p><a href="#">Forgot password?</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div class="auth-form" id="signUpForm">
+        <div class="form-container">
+            <span class="close-form" id="closeSignUp">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signUpFormElement">
+                <div class="form-group">
+                    <label for="signUpName">Full Name</label>
+                    <input type="text" id="signUpName" required>
+                </div>
+                <div class="form-group">
+                    <label for="signUpEmail">Email</label>
+                    <input type="email" id="signUpEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signUpPassword">Password</label>
+                    <input type="password" id="signUpPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="signUpConfirmPassword">Confirm Password</label>
+                    <input type="password" id="signUpConfirmPassword" required>
+                </div>
+                <button type="submit" class="form-submit">Create Account</button>
+            </form>
+            <div class="form-footer">
+                <p>Already have an account? <a href="#" id="switchToSignIn">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbotIcon">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div id="chatbotWindow">
+        <div class="chatbot-header">
+            <h3><i class="fas fa-robot"></i> factchecker AI Assistant</h3>
+            <button id="closeChatbot"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbotMessages">
+            <div class="message bot-message">
+                👋 Hi there! I'm your factchecker AI assistant. I can help you verify news, explain media bias, or answer questions about misinformation. How can I help you today?
+            </div>
+        </div>
+        <div class="chatbot-input-container">
+            <input type="text" id="chatbotInput" placeholder="Ask me about news verification...">
+            <button id="sendChatbotMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Auth Forms
+        const signInButton = document.getElementById('signInButton');
+        const signInForm = document.getElementById('signInForm');
+        const closeSignIn = document.getElementById('closeSignIn');
+        const signUpForm = document.getElementById('signUpForm');
+        const closeSignUp = document.getElementById('closeSignUp');
+        const switchToSignUp = document.getElementById('switchToSignUp');
+        const switchToSignIn = document.getElementById('switchToSignIn');
+        const footerSignUp = document.getElementById('footerSignUp');
+        const tryNowButton = document.getElementById('tryNowButton');
+
+        signInButton.addEventListener('click', () => {
+            signInForm.classList.add('active');
+        });
+
+        closeSignIn.addEventListener('click', () => {
+            signInForm.classList.remove('active');
+        });
+
+        closeSignUp.addEventListener('click', () => {
+            signUpForm.classList.remove('active');
+        });
+
+        switchToSignUp.addEventListener('click', (e) => {
+            e.preventDefault();
+            signInForm.classList.remove('active');
+            signUpForm.classList.add('active');
+        });
+
+        switchToSignIn.addEventListener('click', (e) => {
+            e.preventDefault();
+            signUpForm.classList.remove('active');
+            signInForm.classList.add('active');
+        });
+
+        footerSignUp.addEventListener('click', () => {
+            signUpForm.classList.add('active');
+        });
+
+        tryNowButton.addEventListener('click', () => {
+            signUpForm.classList.add('active');
+        });
+
+        // Form Submission
+        document.getElementById('signInFormElement').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Sign in functionality would be implemented here');
+            signInForm.classList.remove('active');
+        });
+
+        document.getElementById('signUpFormElement').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Sign up functionality would be implemented here');
+            signUpForm.classList.remove('active');
+        });
+
+        // Chatbot
+        const chatbotIcon = document.getElementById("chatbotIcon");
+        const chatbotWindow = document.getElementById("chatbotWindow");
+        const closeChatbot = document.getElementById("closeChatbot");
+        const chatbotInput = document.getElementById("chatbotInput");
+        const sendChatbotMessage = document.getElementById("sendChatbotMessage");
+        const chatbotMessages = document.getElementById("chatbotMessages");
+
+        // Google Gemini API configuration
+        const GOOGLE_API_KEY = 'AIzaSyDudnt6l_RVPTuwnnj0VqrtLq8WVDewrMY';
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_API_KEY}`;
+
+        // Toggle chatbot window
+        chatbotIcon.addEventListener("click", () => {
+            chatbotWindow.classList.toggle("active");
+        });
+
+        closeChatbot.addEventListener("click", () => {
+            chatbotWindow.classList.remove("active");
+        });
+
+        // Send message function
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (message === "") return;
+
+            // Add user message to chat
+            addMessage(message, "user");
+
+            // Clear input
+            chatbotInput.value = "";
+
+            // Show typing indicator
+            const typingIndicator = document.createElement("div");
+            typingIndicator.className = "message bot-message";
+            typingIndicator.innerHTML = "<i class='fas fa-ellipsis-h'></i>";
+            chatbotMessages.appendChild(typingIndicator);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            // Call AI API
+            fetchAIResponse(message).then(response => {
+                // Remove typing indicator
+                chatbotMessages.removeChild(typingIndicator);
+                
+                // Add AI response
+                addMessage(response, "bot");
+            }).catch(error => {
+                chatbotMessages.removeChild(typingIndicator);
+                addMessage("Sorry, I'm having trouble connecting to the AI service. Please try again later.", "bot");
+                console.error("Error:", error);
+            });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageElement = document.createElement("div");
+            messageElement.className = `message ${sender}-message`;
+            messageElement.textContent = text;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Fetch AI response
+        async function fetchAIResponse(prompt) {
+            const requestBody = {
+                contents: [{
+                    parts: [{
+                        text: `You are fact-checking AI, an assistant that helps verify news and detect misinformation. 
+                        Respond helpfully to the user's query about news verification, fact-checking, or media literacy.
+                        Keep responses clear, concise, and focused on factual information. If asked to verify specific news,
+                        explain your reasoning and provide reliability assessment.
+                        
+                        User query: ${prompt}`
+                    }]
+                }]
+            };
+
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // Event listeners for sending messages
+        sendChatbotMessage.addEventListener("click", sendMessage);
+        chatbotInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Sample questions for quick interaction
+        const sampleQuestions = [
+            "How can I verify if a news article is real?",
+            "What are common signs of fake news?",
+            "Can you check this news for me: [paste URL]",
+            "How does your verification system work?"
+        ];
+
+        // Add sample questions to chat
+        setTimeout(() => {
+            const sampleContainer = document.createElement("div");
+            sampleContainer.style.marginTop = "10px";
+            sampleContainer.innerHTML = "<p style='font-size: 0.8rem; color: var(--text-color); opacity: 0.7; margin-bottom: 5px;'>Try asking:</p>";
+            
+            sampleQuestions.forEach(question => {
+                const questionBtn = document.createElement("button");
+                questionBtn.textContent = question;
+                questionBtn.style.display = "block";
+                questionBtn.style.width = "100%";
+                questionBtn.style.textAlign = "left";
+                questionBtn.style.padding = "5px 10px";
+                questionBtn.style.margin = "5px 0";
+                questionBtn.style.border = "none";
+                questionBtn.style.background = "var(--bg-color)";
+                questionBtn.style.color = "var(--primary-color)";
+                questionBtn.style.borderRadius = "5px";
+                questionBtn.style.cursor = "pointer";
+                questionBtn.style.transition = "var(--transition)";
+                
+                questionBtn.addEventListener("mouseover", () => {
+                    questionBtn.style.background = "var(--primary-color)";
+                    questionBtn.style.color = "white";
+                });
+                
+                questionBtn.addEventListener("mouseout", () => {
+                    questionBtn.style.background = "var(--bg-color)";
+                    questionBtn.style.color = "var(--primary-color)";
+                });
+                
+                questionBtn.addEventListener("click", () => {
+                    chatbotInput.value = question;
+                });
+                
+                sampleContainer.appendChild(questionBtn);
+            });
+            
+            chatbotMessages.appendChild(sampleContainer);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }, 1500);
+    </script>
+</body>
+</html>
